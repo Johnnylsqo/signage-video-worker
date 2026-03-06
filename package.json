@@ -2,9 +2,10 @@
   "name": "video-worker",
   "version": "1.0.0",
   "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
-    "@supabase/supabase-js": "^2",
-    "express": "^4",
-    "node-fetch": "^3"
+    "express": "^4.21.2"
   }
 }
