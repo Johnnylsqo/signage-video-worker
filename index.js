@@ -7,6 +7,7 @@ const app = express();
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
+
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const WORKER_SECRET = process.env.WORKER_SECRET;
@@ -19,6 +20,7 @@ app.get("/", (req, res) => {
 
 app.post("/transcode", async (req, res) => {
   try {
+
     if (req.headers["x-worker-secret"] !== WORKER_SECRET) {
       return res.status(401).send("unauthorized");
     }
@@ -41,6 +43,14 @@ app.post("/transcode", async (req, res) => {
         ok: false,
         message: "db error",
         details: mediaError?.message || "media not found"
+      });
+    }
+
+    // evita reprocessamento
+    if (media.status === "ready") {
+      return res.json({
+        ok: true,
+        message: "already processed"
       });
     }
 
@@ -67,6 +77,7 @@ app.post("/transcode", async (req, res) => {
 
     if (downloadError || !fileData) {
       console.error("Download error:", downloadError);
+
       await supabase
         .from("media_assets")
         .update({
@@ -88,6 +99,7 @@ app.post("/transcode", async (req, res) => {
     const ffmpegCommand = `ffmpeg -y -threads 2 -i "${tempInput}" -vf "scale='min(1280,iw)':-2" -c:v libx264 -preset ultrafast -crf 26 -profile:v main -level 4.0 -pix_fmt yuv420p -c:a aac -b:a 96k -movflags +faststart "${tempOutput}"`;
 
     exec(ffmpegCommand, async (ffmpegError) => {
+
       if (ffmpegError) {
         console.error("FFmpeg error:", ffmpegError);
 
@@ -157,10 +169,12 @@ app.post("/transcode", async (req, res) => {
         ok: true,
         playablePath
       });
+
     });
 
   } catch (err) {
     console.error("Internal error:", err);
+
     return res.status(500).json({
       ok: false,
       message: "internal error",
