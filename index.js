@@ -85,7 +85,7 @@ app.post("/transcode", async (req, res) => {
     const fileBuffer = Buffer.from(await fileData.arrayBuffer());
     fs.writeFileSync(tempInput, fileBuffer);
 
-    const ffmpegCommand = `ffmpeg -y -i "${tempInput}" -vf "scale='min(1920,iw)':-2" -c:v libx264 -profile:v main -level 4.0 -pix_fmt yuv420p -preset veryfast -crf 22 -c:a aac -b:a 128k -movflags +faststart "${tempOutput}"`;
+    const ffmpegCommand = `ffmpeg -y -threads 2 -i "${tempInput}" -vf "scale='min(1280,iw)':-2" -c:v libx264 -preset ultrafast -crf 26 -profile:v main -level 4.0 -pix_fmt yuv420p -c:a aac -b:a 96k -movflags +faststart "${tempOutput}"`;
 
     exec(ffmpegCommand, async (ffmpegError) => {
       if (ffmpegError) {
