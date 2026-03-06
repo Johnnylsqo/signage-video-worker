@@ -1,0 +1,9 @@
+{
+  "name": "video-worker",
+  "version": "1.0.0",
+  "dependencies": {
+    "@supabase/supabase-js": "^2",
+    "express": "^4",
+    "node-fetch": "^3"
+  }
+}
